@@ -1,0 +1,30 @@
+{
+  "name": "ConvoCanvas Dev Container",
+  "image": "mcr.microsoft.com/devcontainers/javascript-node:20",
+  "forwardPorts": [3000, 4000, 5432],
+  "portsAttributes": {
+    "3000": {
+      "label": "Next.js Frontend",
+      "onAutoForward": "notify"
+    },
+    "4000": {
+      "label": "WebSocket Server",
+      "onAutoForward": "silent"
+    },
+    "5432": {
+      "label": "PostgreSQL Database",
+      "onAutoForward": "silent"
+    }
+  },
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "dbaeumer.vscode-eslint",
+        "esbenp.prettier-vscode",
+        "prisma.prisma"
+      ]
+    }
+  },
+  "postCreateCommand": "sudo apt-get update && sudo apt-get install -y postgresql postgresql-contrib && sudo service postgresql start && sudo runuser -l postgres -c \"psql -c \\\"ALTER USER postgres PASSWORD 'password';\\\"\" && (sudo runuser -l postgres -c \"psql -c \\\"CREATE DATABASE convocanvas;\\\"\" || true)",
+  "remoteUser": "node"
+}
