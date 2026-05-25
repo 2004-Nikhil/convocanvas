@@ -25,6 +25,6 @@
       ]
     }
   },
-  "postCreateCommand": "sudo apt-get update && sudo apt-get install -y postgresql postgresql-contrib && sudo service postgresql start && sudo runuser -l postgres -c \"psql -c \\\"ALTER USER postgres PASSWORD 'password';\\\"\" && (sudo runuser -l postgres -c \"psql -c \\\"CREATE DATABASE convocanvas;\\\"\" || true)",
+  "postCreateCommand": "sudo apt-get update && sudo apt-get install -y git-lfs postgresql postgresql-contrib && git lfs install && sudo service postgresql start && sudo runuser -l postgres -c \"psql -c \\\"ALTER USER postgres PASSWORD 'password';\\\"\" && (sudo runuser -l postgres -c \"psql -c \\\"CREATE DATABASE convocanvas;\\\"\" || true)",
   "remoteUser": "node"
 }
