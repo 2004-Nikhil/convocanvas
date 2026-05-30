@@ -26,6 +26,7 @@ model User {
 model Room {
   id        String    @id @default(uuid())
   name      String
+  canvasState String?   // Stores serialized stroke history
   createdAt DateTime  @default(now())
   messages  Message[]
 }

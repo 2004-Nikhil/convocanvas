@@ -36,6 +36,24 @@ io.on('connection', (socket) => {
     socket.to(data.roomId).emit('receive-message', data);
   });
 
+  // Receive line coordinate update and broadcast to others in the room
+  socket.on('draw-line', (data: { 
+    roomId: string; 
+    x0: number; 
+    y0: number; 
+    x1: number; 
+    y1: number; 
+    color: string; 
+    size: number 
+  }) => {
+    socket.to(data.roomId).emit('draw-line', data);
+  });
+
+  // Broadcast clear command
+  socket.on('clear-canvas', (roomId: string) => {
+    socket.to(roomId).emit('clear-canvas');
+  });
+
   socket.on('disconnect', () => {
     console.log(`User disconnected: ${socket.id}`);
   });
