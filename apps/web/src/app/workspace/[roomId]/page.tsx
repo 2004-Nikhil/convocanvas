@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { useSession } from "next-auth/react";
 import { io, Socket } from "socket.io-client";
+import Whiteboard from "@/components/Whiteboard";
 
 interface Message {
   id: string;
@@ -20,7 +21,7 @@ export default function WorkspacePage() {
   const { data: session, status } = useSession();
   const [messages, setMessages] = useState<Message[]>([]);
   const [newMessage, setNewMessage] = useState("");
-  const socketRef = useRef<Socket | null>(null);
+  const [socket, setSocket] = useState<Socket | null>(null);
   const messagesEndRef = useRef<HTMLDivElement | null>(null);
   const router = useRouter();
 
@@ -34,18 +35,22 @@ export default function WorkspacePage() {
         .then((data) => setMessages(data));
 
       // 2. Initialize socket connection
-      // For Codespaces development, replace with your active forwarded port 4000 address if localhost fails in your browser
-      const socket = io("https://super-carnival-v9xvj44jv753x7q-4000.app.github.dev/");
-      socketRef.current = socket;
+      const socketInstance = io("https://super-carnival-v9xvj44jv753x7q-4000.app.github.dev/");
 
-      socket.emit("join-room", roomId);
+      socketInstance.emit("join-room", roomId);
 
-      socket.on("receive-message", (message: Message) => {
+      socketInstance.on("receive-message", (message: Message) => {
         setMessages((prev) => [...prev, message]);
       });
 
+      // Defer state assignment to avoid synchronous cascading rendering
+      const timer = setTimeout(() => {
+        setSocket(socketInstance);
+      }, 0);
+
       return () => {
-        socket.disconnect();
+        clearTimeout(timer);
+        socketInstance.disconnect();
       };
     }
   }, [status, roomId, router]);
@@ -72,7 +77,7 @@ export default function WorkspacePage() {
       setMessages((prev) => [...prev, savedMessage]);
 
       // Emit event to active socket peers
-      socketRef.current?.emit("send-message", {
+      socket?.emit("send-message", {
         id: savedMessage.id,
         roomId,
         content: savedMessage.content,
@@ -139,9 +144,9 @@ export default function WorkspacePage() {
           </form>
         </div>
 
-        {/* Placeholder for Collaborative Whiteboard in Sprint 4 */}
-        <div className="flex-1 flex items-center justify-center bg-gray-100">
-          <p className="text-gray-500 text-sm font-medium">Collaborative Whiteboard placeholder (Sprint 4)</p>
+        {/* Live Whiteboard Workspace */}
+        <div className="flex-1 flex bg-white h-full relative">
+          <Whiteboard roomId={roomId} socket={socket} />
         </div>
       </div>
     </div>
